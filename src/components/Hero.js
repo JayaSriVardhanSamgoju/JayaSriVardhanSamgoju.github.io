@@ -116,6 +116,42 @@ const Hero = () => {
         pointerEvents: 'none', zIndex: 0,
       }} />
 
+      {/* Floating 3D elements */}
+      <motion.div
+        animate={{ y: [0, -15, 0], rotateZ: [0, 5, 0] }}
+        transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+        style={{
+          position: 'absolute', top: '15%', right: '12%',
+          width: 80, height: 80, zIndex: 0,
+          border: '1px solid rgba(124,58,237,0.15)',
+          borderRadius: 16,
+          background: 'linear-gradient(135deg, rgba(124,58,237,0.05), rgba(0,212,255,0.03))',
+          transform: 'rotate(45deg)',
+        }}
+      />
+      <motion.div
+        animate={{ y: [0, 12, 0], rotateZ: [0, -3, 0] }}
+        transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+        style={{
+          position: 'absolute', bottom: '25%', right: '20%',
+          width: 50, height: 50, zIndex: 0,
+          border: '1px solid rgba(0,212,255,0.12)',
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(0,212,255,0.06), transparent)',
+        }}
+      />
+      <motion.div
+        animate={{ y: [0, -10, 0], rotateZ: [0, 8, 0] }}
+        transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
+        style={{
+          position: 'absolute', top: '60%', right: '8%',
+          width: 0, height: 0, zIndex: 0,
+          borderLeft: '20px solid transparent',
+          borderRight: '20px solid transparent',
+          borderBottom: '35px solid rgba(45,212,160,0.06)',
+        }}
+      />
+
       <motion.div
         variants={containerVariants}
         initial="hidden"
@@ -257,7 +293,10 @@ const Hero = () => {
               textDecoration: 'none',
             }}
           >
-            View My Work <span style={{ fontSize: 16 }}>→</span>
+            View My Work
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+            </svg>
           </motion.a>
           <motion.a
             href="#contact"

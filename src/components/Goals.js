@@ -4,7 +4,11 @@ import { useInView } from 'react-intersection-observer';
 
 const goals = [
   {
-    icon: '🎯',
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>
+      </svg>
+    ),
     label: 'SHORT TERM',
     title: 'Master Advanced ML',
     description: 'Master advanced Machine Learning and Deep Learning architectures including Transformers, GANs, and reinforcement learning.',
@@ -12,7 +16,11 @@ const goals = [
     items: ['Transformer architectures', 'Generative AI', 'MLOps basics', 'Research publications'],
   },
   {
-    icon: '🚀',
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 00-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 012-3.95A12.88 12.88 0 0122 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 01-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>
+      </svg>
+    ),
     label: 'MID TERM',
     title: 'Scalable AI Systems',
     description: 'Build scalable AI systems and advanced NLP applications for production environments with real impact.',
@@ -20,7 +28,11 @@ const goals = [
     items: ['Production ML pipelines', 'Advanced NLP apps', 'Open source contributions', 'Industry internships'],
   },
   {
-    icon: '⭐',
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+      </svg>
+    ),
     label: 'LONG TERM',
     title: 'Professional Data Scientist',
     description: 'Become a professional Data Scientist developing impactful AI-driven solutions that make a real-world difference.',
@@ -52,13 +64,12 @@ const Goals = () => {
 
       {/* Connector line (desktop) */}
       <div style={{ position: 'relative' }}>
-        <div style={{
+        <div className="goals-connector" style={{
           position: 'absolute',
           top: 60, left: '16%', right: '16%',
           height: 2,
           background: 'linear-gradient(90deg, #00d4ff, #7c3aed, #10b981)',
           zIndex: 0,
-          display: window.innerWidth > 768 ? 'block' : 'none',
         }} />
 
         <div style={{
@@ -84,7 +95,6 @@ const Goals = () => {
                   border: `2px solid ${goal.color}`,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   margin: '0 auto 20px',
-                  fontSize: 28,
                   position: 'relative', zIndex: 2,
                   transition: 'all 0.3s ease',
                   boxShadow: `0 0 20px ${goal.color}22`,
@@ -138,6 +148,12 @@ const Goals = () => {
           ))}
         </div>
       </div>
+
+      <style>{`
+        @media (max-width: 768px) {
+          .goals-connector { display: none; }
+        }
+      `}</style>
     </section>
   );
 };

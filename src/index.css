@@ -13,6 +13,7 @@
   --accent-cyan: #00d4ff;
   --accent-purple: #7c3aed;
   --accent-green: #10b981;
+  --accent-emerald: #2dd4a0;
   --accent-pink: #ec4899;
   --text-primary: #e2e8f0;
   --text-secondary: #94a3b8;
@@ -38,12 +39,25 @@ body {
   line-height: 1.6;
 }
 
+/* ── NOISE TEXTURE OVERLAY ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.015;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+
 /* ── SCROLLBAR ── */
-::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: var(--bg-primary); }
 ::-webkit-scrollbar-thumb {
   background: linear-gradient(180deg, var(--accent-cyan), var(--accent-purple));
-  border-radius: 2px;
+  border-radius: 3px;
 }
 
 /* ── SELECTION ── */
@@ -227,8 +241,42 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes borderGlow {
+  0%, 100% { border-color: rgba(0, 212, 255, 0.2); }
+  50% { border-color: rgba(0, 212, 255, 0.5); }
+}
+
+/* ── 3D PERSPECTIVE UTILITIES ── */
+.perspective-container {
+  perspective: 1000px;
+}
+
+.tilt-card {
+  transition: transform 0.3s ease;
+  transform-style: preserve-3d;
+}
+
+.tilt-card:hover {
+  transform: perspective(800px) rotateX(2deg) rotateY(-2deg) translateZ(10px);
+}
+
+/* ── SMOOTH SECTION REVEALS ── */
+.section {
+  animation: none;
+}
+
 /* ── RESPONSIVE ── */
 @media (max-width: 768px) {
   .section { padding: 70px 5%; }
   .btn-secondary { margin-left: 0; margin-top: 12px; }
+}
+
+@media (max-width: 480px) {
+  .section { padding: 50px 4%; }
+  .section-header { margin-bottom: 40px; }
 }

@@ -2,6 +2,27 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 
+/* ── SVG Icons ── */
+const GraduationIcon = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 0 3 3 6 3s6-3 6-3v-5"/>
+  </svg>
+);
+
+const BookIcon = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+  </svg>
+);
+
+const SchoolIcon = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+  </svg>
+);
+
+const educationIcons = [<GraduationIcon />, <BookIcon />, <SchoolIcon />];
+
 const educationData = [
   {
     degree: 'Bachelor of Technology — Computer Science Engineering',
@@ -10,7 +31,6 @@ const educationData = [
     cgpa: '9.1 / 10.0',
     highlight: true,
     description: 'Specializing in Artificial Intelligence, Machine Learning, and Data Science. Active participant in research projects and technical competitions.',
-    icon: '🎓',
   },
   {
     degree: 'Pre-University Course',
@@ -19,7 +39,6 @@ const educationData = [
     cgpa: '9.2 / 10.0',
     highlight: false,
     description: 'Strong foundation in Mathematics, Physics, Chemistry, and Computer Science.',
-    icon: '📚',
   },
   {
     degree: 'Secondary Education — Class X',
@@ -28,7 +47,6 @@ const educationData = [
     cgpa: null,
     highlight: false,
     description: 'A central government residential school with focus on academic excellence and holistic development.',
-    icon: '🏫',
   },
 ];
 
@@ -106,7 +124,7 @@ const Education = () => {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 12 }}>
                 <div style={{ flex: 1 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                    <span style={{ fontSize: 20 }}>{edu.icon}</span>
+                    {educationIcons[i]}
                     <h3 style={{
                       fontFamily: 'Oxanium, sans-serif',
                       fontSize: 16, fontWeight: 700, color: '#fff',
@@ -137,7 +155,8 @@ const Education = () => {
                       fontSize: 12, color: '#10b981',
                       fontFamily: 'Oxanium, sans-serif', fontWeight: 600,
                     }}>
-                      ★ CGPA: {edu.cgpa}
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="#10b981"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                      CGPA: {edu.cgpa}
                     </div>
                   )}
                 </div>
