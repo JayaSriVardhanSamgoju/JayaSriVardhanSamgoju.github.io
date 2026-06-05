@@ -1,369 +1,353 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useInView } from 'react-intersection-observer';
+import { Mail, Send, AlertCircle, CheckCircle2, Loader2, MessageSquareText } from 'lucide-react';
 import emailjs from '@emailjs/browser';
+import { Canvas } from '@react-three/fiber';
+import { Float, Stars, Sphere, MeshDistortMaterial } from '@react-three/drei';
 
-/* ── CONFIG ── */
-// Replace these with your actual EmailJS credentials:
-// 1. Sign up at https://www.emailjs.com/
-// 2. Create an Email Service (connect your Gmail: srivardhansamgoju@gmail.com)
-// 3. Create an Email Template with variables: {{from_name}}, {{from_email}}, {{message}}
-// 4. Get your Public Key from Account > API Keys
-const EMAILJS_SERVICE_ID = 'YOUR_SERVICE_ID';
-const EMAILJS_TEMPLATE_ID = 'YOUR_TEMPLATE_ID';
-const EMAILJS_PUBLIC_KEY = 'YOUR_PUBLIC_KEY';
+/* Inline social SVGs */
+const GithubIcon = ({ size = 20 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/>
+    <path d="M9 18c-4.51 2-5-2-7-2"/>
+  </svg>
+);
 
-const contactLinks = [
-  {
-    label: 'EMAIL',
-    value: 'srivardhansamgoju@gmail.com',
-    href: 'mailto:srivardhansamgoju@gmail.com',
-    color: '#00d4ff',
-    icon: (
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" />
-      </svg>
-    ),
+const LinkedinIcon = ({ size = 20 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
+    <rect width="4" height="12" x="2" y="9"/>
+    <circle cx="4" cy="4" r="2"/>
+  </svg>
+);
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.12, delayChildren: 0.2 },
   },
-  {
-    label: 'LINKEDIN',
-    value: 'linkedin.com/in/jsvardhan',
-    href: 'https://linkedin.com',
-    color: '#0a66c2',
-    icon: (
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
-      </svg>
-    ),
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] },
   },
-  {
-    label: 'GITHUB',
-    value: 'github.com/jsvardhan',
-    href: 'https://github.com',
-    color: '#e2e8f0',
-    icon: (
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.041-1.472-4.041-1.472-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-      </svg>
-    ),
-  },
-];
+};
+
+const shakeVariants = {
+  shake: { x: [-10, 10, -10, 10, -5, 5, 0], transition: { duration: 0.4 } },
+  idle: { x: 0 },
+};
 
 const Contact = () => {
-  const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.1 });
-  const formRef = useRef(null);
-  const [form, setForm] = useState({ name: '', email: '', message: '' });
-  const [status, setStatus] = useState('idle'); // idle | sending | success | error
-  const [focused, setFocused] = useState('');
+  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+  const [status, setStatus] = useState('idle'); // idle, loading, success, error
+  const [errorMsg, setErrorMsg] = useState('');
+  const [focusedField, setFocusedField] = useState(null);
+
+  const MAX_CHARS = 500;
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    if (name === 'message' && value.length > MAX_CHARS) return;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const validateForm = () => {
+    if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
+      return 'All fields are required.';
+    }
+    if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
+      return 'Please enter a valid email address.';
+    }
+    return null;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.name || !form.email || !form.message) return;
+    const error = validateForm();
+    if (error) {
+      setErrorMsg(error);
+      setStatus('error');
+      setTimeout(() => setStatus('idle'), 3000);
+      return;
+    }
 
-    setStatus('sending');
-
+    setStatus('loading');
     try {
+      // NOTE: Make sure to create an EmailJS account and set these keys in your .env file
+      // REACT_APP_EMAILJS_SERVICE_ID, REACT_APP_EMAILJS_TEMPLATE_ID, REACT_APP_EMAILJS_PUBLIC_KEY
+      const serviceId = process.env.REACT_APP_EMAILJS_SERVICE_ID || 'YOUR_SERVICE_ID';
+      const templateId = process.env.REACT_APP_EMAILJS_TEMPLATE_ID || 'YOUR_TEMPLATE_ID';
+      const publicKey = process.env.REACT_APP_EMAILJS_PUBLIC_KEY || 'YOUR_PUBLIC_KEY';
+
       await emailjs.send(
-        EMAILJS_SERVICE_ID,
-        EMAILJS_TEMPLATE_ID,
+        serviceId,
+        templateId,
         {
-          from_name: form.name,
-          from_email: form.email,
-          message: form.message,
-          to_email: 'srivardhansamgoju@gmail.com',
+          from_name: formData.name,
+          to_name: 'Jaya Sri Vardhan Samgoju',
+          from_email: formData.email,
+          message: formData.message,
+          reply_to: formData.email,
         },
-        EMAILJS_PUBLIC_KEY
+        publicKey
       );
+
       setStatus('success');
-      setTimeout(() => {
-        setStatus('idle');
-        setForm({ name: '', email: '', message: '' });
-      }, 4000);
+      setFormData({ name: '', email: '', message: '' });
+      setTimeout(() => setStatus('idle'), 6000);
     } catch (err) {
-      console.error('EmailJS error:', err);
+      console.error('EmailJS Error:', err);
+      setErrorMsg('Failed to send message. Please try again or email directly.');
       setStatus('error');
       setTimeout(() => setStatus('idle'), 4000);
     }
   };
 
-  const inputBaseStyle = {
-    width: '100%',
-    background: 'rgba(255,255,255,0.03)',
-    border: '1px solid #1e3a5f',
-    borderRadius: 10,
-    padding: '14px 18px',
-    color: '#e2e8f0',
-    fontSize: 14,
-    fontFamily: 'Inter, sans-serif',
-    outline: 'none',
-    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-  };
-
-  const getInputStyle = (field) => ({
-    ...inputBaseStyle,
-    borderColor: focused === field ? '#00d4ff' : '#1e3a5f',
-    boxShadow: focused === field ? '0 0 20px rgba(0,212,255,0.08), inset 0 0 20px rgba(0,212,255,0.03)' : 'none',
-    background: focused === field ? 'rgba(0,212,255,0.02)' : 'rgba(255,255,255,0.03)',
-  });
-
-  const getButtonStyle = () => {
-    if (status === 'success') return 'linear-gradient(135deg, #10b981, #059669)';
-    if (status === 'error') return 'linear-gradient(135deg, #ef4444, #dc2626)';
-    return 'linear-gradient(135deg, #00d4ff, #7c3aed)';
-  };
-
-  const getButtonText = () => {
-    if (status === 'sending') return 'Sending...';
-    if (status === 'success') return 'Message Sent Successfully!';
-    if (status === 'error') return 'Failed — Try Again';
-    return 'Send Message';
-  };
-
   return (
-    <section id="contact" ref={ref} style={{ background: 'var(--bg-primary)', padding: '100px 8%' }}>
-      {/* Header */}
-      <div className="section-header" style={{ textAlign: 'center', marginBottom: 48 }}>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}}
-          className="section-tag"
-          style={{ justifyContent: 'center' }}
-        >LET'S CONNECT</motion.div>
-        <motion.h2
-          initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ delay: 0.1 }} className="section-title"
-        >Contact & Suggestions</motion.h2>
+    <section className="section-container" id="contact" style={{ position: 'relative' }}>
+      {/* Dynamic 3D Background */}
+      <div style={{ position: 'absolute', inset: 0, zIndex: 0, opacity: 0.3, pointerEvents: 'none' }}>
+        <Canvas>
+          <Stars radius={100} depth={50} count={1500} factor={4} saturation={0} fade speed={1.5} />
+          <ambientLight intensity={0.5} />
+          <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
+            <Sphere args={[1.5, 32, 32]} position={[-6, 0, -5]}>
+              <MeshDistortMaterial color="#111111" wireframe emissive="#64ffda" emissiveIntensity={0.15} distort={0.3} speed={2} />
+            </Sphere>
+          </Float>
+        </Canvas>
       </div>
 
-      <div style={{ maxWidth: 720, margin: '0 auto' }}>
-        {/* Intro */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
-          style={{ marginBottom: 40, textAlign: 'center' }}
-        >
-          <h3 style={{
-            fontFamily: 'Oxanium, sans-serif',
-            fontSize: 26, fontWeight: 800,
-            color: '#fff', marginBottom: 14,
-          }}>Get In Touch</h3>
-          <p style={{
-            fontSize: 15, color: '#94a3b8',
-            lineHeight: 1.8, maxWidth: 600, margin: '0 auto',
-          }}>
-            I'm always open to new opportunities, research collaborations, and
-            conversations about AI, Machine Learning, and Data Science. Feel free to reach out!
-          </p>
-        </motion.div>
+      <style>{`
+        .floating-label-group {
+          position: relative;
+          margin-bottom: 24px;
+        }
+        .floating-label {
+          position: absolute;
+          left: 16px;
+          top: 16px;
+          color: var(--text-dim);
+          pointer-events: none;
+          transition: 0.2s ease all;
+          font-family: var(--font-body);
+          font-size: 15px;
+        }
+        .contact-input:focus ~ .floating-label,
+        .contact-textarea:focus ~ .floating-label,
+        .contact-input:not(:placeholder-shown) ~ .floating-label,
+        .contact-textarea:not(:placeholder-shown) ~ .floating-label {
+          top: -10px;
+          left: 12px;
+          font-size: 12px;
+          color: var(--accent);
+          background: var(--bg-surface);
+          padding: 0 8px;
+        }
+        .social-icon-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 50px;
+          height: 50px;
+          border-radius: 12px;
+          background: rgba(17, 17, 17, 0.6);
+          border: 1px solid var(--border-subtle);
+          color: var(--text-muted);
+          transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+          position: relative;
+        }
+        .social-icon-btn:hover {
+          color: var(--bg-primary);
+          background: var(--accent);
+          border-color: var(--accent);
+          box-shadow: 0 0 20px var(--accent-glow);
+          transform: translateY(-4px) scale(1.05);
+        }
+        .social-tooltip {
+          position: absolute;
+          bottom: -36px;
+          background: var(--bg-surface-2);
+          color: var(--text-primary);
+          padding: 6px 12px;
+          border-radius: 6px;
+          font-size: 12px;
+          font-family: var(--font-mono);
+          white-space: nowrap;
+          pointer-events: none;
+          opacity: 0;
+          transform: translateY(-10px);
+          transition: all 0.2s ease;
+          border: 1px solid var(--border-subtle);
+        }
+        .social-icon-btn:hover .social-tooltip {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      `}</style>
 
-        {/* Suggestion form */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.15 }}
-          style={{
-            background: 'rgba(13,30,56,0.4)',
-            border: '1px solid #1e3a5f',
-            borderRadius: 24,
-            padding: '44px 40px',
-            textAlign: 'left',
-            backdropFilter: 'blur(16px)',
-            marginBottom: 48,
-            position: 'relative',
-            overflow: 'hidden',
-          }}
-        >
-          {/* Decorative corner glow */}
-          <div style={{
-            position: 'absolute', top: -60, right: -60,
-            width: 200, height: 200,
-            background: 'radial-gradient(circle, rgba(0,212,255,0.06) 0%, transparent 70%)',
-            pointerEvents: 'none',
-          }} />
-          <div style={{
-            position: 'absolute', bottom: -60, left: -60,
-            width: 200, height: 200,
-            background: 'radial-gradient(circle, rgba(124,58,237,0.06) 0%, transparent 70%)',
-            pointerEvents: 'none',
-          }} />
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.2 }}
+        style={{ position: 'relative', zIndex: 1 }}
+      >
+        <motion.p className="section-label" variants={itemVariants}>
+          04 — Connect
+        </motion.p>
+        <motion.h2 className="section-title" variants={itemVariants}>
+          Get In Touch
+        </motion.h2>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" />
-            </svg>
-            <h3 style={{
-              fontFamily: 'Oxanium, sans-serif',
-              fontSize: 20, fontWeight: 700,
-              color: '#fff',
-            }}>Leave a Suggestion</h3>
-          </div>
-          <p style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.7, marginBottom: 28 }}>
-            Your feedback helps me improve and grow. Share suggestions regarding my work, projects, or portfolio.
-          </p>
+        <div className="contact-layout">
+          {/* Left Column: Info & Socials */}
+          <motion.div className="contact-info" variants={itemVariants}>
+            <h3 style={{ fontSize: '28px', marginBottom: '20px' }}>Let's build something extraordinary</h3>
+            <p style={{ fontSize: '16px', maxWidth: '400px' }}>
+              Have feedback, ideas, or collaboration opportunities? Feel free to reach out — your suggestions help me grow. Whether it's a question about my ML pipelines or a discussion on system design, my inbox is always open!
+            </p>
 
-          <form ref={formRef} onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
-            <div>
-              <label style={{
-                display: 'block', fontSize: 11, color: focused === 'name' ? '#00d4ff' : '#4b6282',
-                letterSpacing: 1, fontFamily: 'Oxanium, sans-serif', marginBottom: 8,
-                transition: 'color 0.3s',
-                fontWeight: 600,
-              }}>
-                YOUR NAME
-              </label>
-              <input
-                type="text" name="from_name"
-                value={form.name}
-                onChange={e => setForm({ ...form, name: e.target.value })}
-                placeholder="e.g. Jane Doe"
-                onFocus={() => setFocused('name')}
-                onBlur={() => setFocused('')}
-                required
-                style={getInputStyle('name')}
-              />
+            <div style={{ display: 'flex', gap: '16px', marginTop: '40px' }}>
+              <a href="mailto:srivardhansamgoju@gmail.com" className="social-icon-btn">
+                <Mail size={22} />
+                <span className="social-tooltip">Email Me</span>
+              </a>
+              <a href="https://github.com/" target="_blank" rel="noopener noreferrer" className="social-icon-btn">
+                <GithubIcon size={22} />
+                <span className="social-tooltip">Visit GitHub</span>
+              </a>
+              <a href="https://linkedin.com/" target="_blank" rel="noopener noreferrer" className="social-icon-btn">
+                <LinkedinIcon size={22} />
+                <span className="social-tooltip">Connect on LinkedIn</span>
+              </a>
             </div>
-            <div>
-              <label style={{
-                display: 'block', fontSize: 11, color: focused === 'email' ? '#00d4ff' : '#4b6282',
-                letterSpacing: 1, fontFamily: 'Oxanium, sans-serif', marginBottom: 8,
-                transition: 'color 0.3s',
-                fontWeight: 600,
-              }}>
-                EMAIL ADDRESS
-              </label>
-              <input
-                type="email" name="from_email"
-                value={form.email}
-                onChange={e => setForm({ ...form, email: e.target.value })}
-                placeholder="your@email.com"
-                onFocus={() => setFocused('email')}
-                onBlur={() => setFocused('')}
-                required
-                style={getInputStyle('email')}
-              />
-            </div>
-            <div>
-              <label style={{
-                display: 'block', fontSize: 11, color: focused === 'message' ? '#00d4ff' : '#4b6282',
-                letterSpacing: 1, fontFamily: 'Oxanium, sans-serif', marginBottom: 8,
-                transition: 'color 0.3s',
-                fontWeight: 600,
-              }}>
-                MESSAGE / SUGGESTION
-              </label>
-              <textarea
-                name="message"
-                value={form.message}
-                onChange={e => setForm({ ...form, message: e.target.value })}
-                placeholder="Share your thoughts, feedback, or suggestions..."
-                onFocus={() => setFocused('message')}
-                onBlur={() => setFocused('')}
-                required
-                rows={4}
-                style={{
-                  ...getInputStyle('message'),
-                  resize: 'vertical', minHeight: 130,
-                }}
-              />
-            </div>
+          </motion.div>
 
-            <motion.button
-              type="submit"
-              disabled={status === 'sending'}
-              whileHover={status === 'idle' ? { y: -3, boxShadow: '0 15px 30px rgba(0,212,255,0.2)' } : {}}
-              whileTap={status === 'idle' ? { scale: 0.97 } : {}}
-              style={{
-                width: '100%',
-                background: getButtonStyle(),
-                color: '#fff', border: 'none',
-                padding: '16px', borderRadius: 10,
-                fontSize: 14, fontWeight: 700,
-                fontFamily: 'Oxanium, sans-serif',
-                cursor: status === 'sending' ? 'wait' : 'pointer',
-                letterSpacing: 0.5,
-                transition: 'all 0.4s ease',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-                position: 'relative',
-                overflow: 'hidden',
-              }}
+          {/* Right Column: Suggestion Box */}
+          <motion.div variants={itemVariants}>
+            <motion.form
+              className="project-card"
+              style={{ padding: '40px', display: 'flex', flexDirection: 'column', position: 'relative' }}
+              onSubmit={handleSubmit}
+              variants={status === 'error' ? shakeVariants : {}}
+              animate={status === 'error' ? 'shake' : 'idle'}
             >
-              {/* Animated status indicator */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '30px' }}>
+                <MessageSquareText size={24} color="var(--accent)" />
+                <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '22px', color: 'var(--text-primary)' }}>
+                  Suggestion Box
+                </h3>
+              </div>
+
+              <div className="floating-label-group">
+                <input
+                  type="text"
+                  name="name"
+                  id="name"
+                  className="contact-input"
+                  placeholder=" "
+                  value={formData.name}
+                  onChange={handleChange}
+                  onFocus={() => setFocusedField('name')}
+                  onBlur={() => setFocusedField(null)}
+                  style={{ boxShadow: focusedField === 'name' ? '0 0 15px var(--accent-dim)' : 'none' }}
+                />
+                <label htmlFor="name" className="floating-label">Your Name</label>
+              </div>
+
+              <div className="floating-label-group">
+                <input
+                  type="email"
+                  name="email"
+                  id="email"
+                  className="contact-input"
+                  placeholder=" "
+                  value={formData.email}
+                  onChange={handleChange}
+                  onFocus={() => setFocusedField('email')}
+                  onBlur={() => setFocusedField(null)}
+                  style={{ boxShadow: focusedField === 'email' ? '0 0 15px var(--accent-dim)' : 'none' }}
+                />
+                <label htmlFor="email" className="floating-label">Your Email</label>
+              </div>
+
+              <div className="floating-label-group" style={{ marginBottom: '8px' }}>
+                <textarea
+                  name="message"
+                  id="message"
+                  className="contact-textarea"
+                  placeholder=" "
+                  value={formData.message}
+                  onChange={handleChange}
+                  onFocus={() => setFocusedField('message')}
+                  onBlur={() => setFocusedField(null)}
+                  style={{ boxShadow: focusedField === 'message' ? '0 0 15px var(--accent-dim)' : 'none' }}
+                />
+                <label htmlFor="message" className="floating-label">Message / Suggestion</label>
+              </div>
+              
+              <div style={{ textAlign: 'right', fontSize: '12px', color: 'var(--text-dim)', marginBottom: '24px', fontFamily: 'var(--font-mono)' }}>
+                {formData.message.length} / {MAX_CHARS}
+              </div>
+
               <AnimatePresence mode="wait">
-                <motion.span
-                  key={status}
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  exit={{ y: -20, opacity: 0 }}
-                  transition={{ duration: 0.25 }}
-                  style={{ display: 'flex', alignItems: 'center', gap: 8 }}
-                >
-                  {status === 'sending' && (
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                      style={{
-                        width: 16, height: 16,
-                        border: '2px solid rgba(255,255,255,0.3)',
-                        borderTop: '2px solid #fff',
-                        borderRadius: '50%',
-                      }}
-                    />
-                  )}
-                  {status === 'success' && (
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="20 6 9 17 4 12"/>
-                    </svg>
-                  )}
-                  {status === 'idle' && (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
-                    </svg>
-                  )}
-                  {getButtonText()}
-                </motion.span>
+                {status === 'error' && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                    style={{ color: '#ff6b6b', fontSize: '14px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}
+                  >
+                    <AlertCircle size={16} /> {errorMsg}
+                  </motion.div>
+                )}
+                {status === 'success' && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                    style={{ color: 'var(--accent)', fontSize: '14px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}
+                  >
+                    <CheckCircle2 size={16} /> Your message has been successfully sent. Thank you for your feedback!
+                  </motion.div>
+                )}
               </AnimatePresence>
-            </motion.button>
-          </form>
-        </motion.div>
 
-        {/* Social icons */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            gap: 32,
-            paddingTop: 12,
-          }}
-        >
-          {contactLinks.map((link, i) => (
-            <motion.a
-              key={i}
-              href={link.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              whileHover={{
-                scale: 1.25,
-                color: link.color,
-                filter: `drop-shadow(0 0 15px ${link.color}aa)`
-              }}
-              style={{
-                fontSize: 32,
-                color: '#4b6282',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-              title={link.label}
-            >
-              {link.icon}
-            </motion.a>
-          ))}
-        </motion.div>
-      </div>
+              <motion.button
+                className="contact-submit"
+                type="submit"
+                disabled={status === 'loading'}
+                whileHover={{ scale: status === 'loading' ? 1 : 1.03 }}
+                whileTap={{ scale: status === 'loading' ? 1 : 0.97 }}
+                style={{ 
+                  opacity: status === 'loading' ? 0.7 : 1, 
+                  cursor: status === 'loading' ? 'not-allowed' : 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '10px',
+                  width: '100%'
+                }}
+              >
+                {status === 'loading' ? (
+                  <>
+                    <Loader2 size={18} className="animate-spin" style={{ animation: 'spin 1s linear infinite' }} />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    <Send size={18} />
+                    Send Message
+                  </>
+                )}
+              </motion.button>
+            </motion.form>
+          </motion.div>
+        </div>
+      </motion.div>
     </section>
   );
 };

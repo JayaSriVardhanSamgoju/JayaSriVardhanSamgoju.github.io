@@ -1,352 +1,186 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { ArrowRight } from 'lucide-react';
+import { TypeAnimation } from 'react-type-animation';
 
-const stats = [
-  { id: 1, target: 8, label: 'ML Projects', suffix: '+', decimals: 0 },
-  { id: 2, target: 3, label: 'NLP Projects', suffix: '+', decimals: 0 },
-  { id: 3, target: 6, label: 'Deep Learning', suffix: '+', decimals: 0 },
-  { id: 4, target: 9.1, label: 'CGPA', suffix: '', decimals: 1 },
-];
+/* Inline social SVGs since lucide-react no longer ships brand icons */
+const GithubIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/>
+    <path d="M9 18c-4.51 2-5-2-7-2"/>
+  </svg>
+);
 
-const TypeWriter = ({ texts }) => {
-  const [display, setDisplay] = useState('');
-  const [idx, setIdx] = useState(0);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [charIdx, setCharIdx] = useState(0);
+const LinkedinIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
+    <rect width="4" height="12" x="2" y="9"/>
+    <circle cx="4" cy="4" r="2"/>
+  </svg>
+);
+
+const TwitterIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/>
+  </svg>
+);
+
+const MailIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect width="20" height="16" x="2" y="4" rx="2"/>
+    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+  </svg>
+);
+
+const Hero = ({ onViewWork }) => {
+  const photoRef = useRef(null);
 
   useEffect(() => {
-    const current = texts[idx % texts.length];
-    const speed = isDeleting ? 40 : 80;
-    const timer = setTimeout(() => {
-      if (!isDeleting && charIdx < current.length) {
-        setDisplay(current.slice(0, charIdx + 1));
-        setCharIdx(c => c + 1);
-      } else if (!isDeleting && charIdx === current.length) {
-        setTimeout(() => setIsDeleting(true), 1800);
-      } else if (isDeleting && charIdx > 0) {
-        setDisplay(current.slice(0, charIdx - 1));
-        setCharIdx(c => c - 1);
-      } else {
-        setIsDeleting(false);
-        setIdx(i => (i + 1) % texts.length);
-      }
-    }, speed);
-    return () => clearTimeout(timer);
-  }, [charIdx, isDeleting, idx, texts]);
-
-  return (
-    <span style={{ color: '#00d4ff' }}>
-      {display}
-      <span style={{ animation: 'blink 1s infinite', borderRight: '2px solid #00d4ff', marginLeft: 2 }} />
-    </span>
-  );
-};
-
-const Counter = ({ target, decimals, suffix, started }) => {
-  const [count, setCount] = useState(0);
-  useEffect(() => {
-    if (!started) return;
-    let startTime = null;
-    const duration = 1600;
-    const step = (timestamp) => {
-      if (!startTime) startTime = timestamp;
-      const progress = Math.min((timestamp - startTime) / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setCount(eased * target);
-      if (progress < 1) requestAnimationFrame(step);
+    const handleMouseMove = (e) => {
+      if (!photoRef.current) return;
+      const x = (e.clientX / window.innerWidth - 0.5) * 12;
+      const y = (e.clientY / window.innerHeight - 0.5) * 12;
+      photoRef.current.style.transform = `scale(1.05) translate(${x}px, ${y}px)`;
     };
-    requestAnimationFrame(step);
-  }, [started, target]);
 
-  return (
-    <span>
-      {decimals ? count.toFixed(decimals) : Math.floor(count)}{suffix}
-    </span>
-  );
-};
-
-const Hero = () => {
-  const heroRef = useRef(null);
-  const [started, setStarted] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setStarted(true), 800);
-    return () => clearTimeout(timer);
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
   const containerVariants = {
     hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.15, delayChildren: 0.2 } },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.12, delayChildren: 0.3 },
+    },
   };
+
   const itemVariants = {
     hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] },
+    },
   };
 
   return (
-    <section
-      ref={heroRef}
-      id="hero"
-      style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        padding: '100px 8% 80px',
-        position: 'relative',
-        zIndex: 1,
-        overflow: 'hidden',
-      }}
-    >
-      {/* Background grid */}
-      <div style={{
-        position: 'absolute', inset: 0, zIndex: 0,
-        backgroundImage: `
-          linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px)
-        `,
-        backgroundSize: '50px 50px',
-        pointerEvents: 'none',
-      }} />
-
-      {/* Radial glow */}
-      <div style={{
-        position: 'absolute', top: '20%', left: '40%',
-        width: 500, height: 500,
-        background: 'radial-gradient(circle, rgba(0,212,255,0.05) 0%, transparent 70%)',
-        pointerEvents: 'none', zIndex: 0,
-      }} />
-
-      {/* Floating 3D elements */}
+    <section className="hero-section" id="hero">
+      {/* Left Side — Info */}
       <motion.div
-        animate={{ y: [0, -15, 0], rotateZ: [0, 5, 0] }}
-        transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-        style={{
-          position: 'absolute', top: '15%', right: '12%',
-          width: 80, height: 80, zIndex: 0,
-          border: '1px solid rgba(124,58,237,0.15)',
-          borderRadius: 16,
-          background: 'linear-gradient(135deg, rgba(124,58,237,0.05), rgba(0,212,255,0.03))',
-          transform: 'rotate(45deg)',
-        }}
-      />
-      <motion.div
-        animate={{ y: [0, 12, 0], rotateZ: [0, -3, 0] }}
-        transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-        style={{
-          position: 'absolute', bottom: '25%', right: '20%',
-          width: 50, height: 50, zIndex: 0,
-          border: '1px solid rgba(0,212,255,0.12)',
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(0,212,255,0.06), transparent)',
-        }}
-      />
-      <motion.div
-        animate={{ y: [0, -10, 0], rotateZ: [0, 8, 0] }}
-        transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
-        style={{
-          position: 'absolute', top: '60%', right: '8%',
-          width: 0, height: 0, zIndex: 0,
-          borderLeft: '20px solid transparent',
-          borderRight: '20px solid transparent',
-          borderBottom: '35px solid rgba(45,212,160,0.06)',
-        }}
-      />
-
-      <motion.div
+        className="hero-left"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        style={{ maxWidth: 780, position: 'relative', zIndex: 1 }}
       >
-        {/* Badge */}
-        <motion.div variants={itemVariants}>
-          <div style={{
-            display: 'inline-flex', alignItems: 'center', gap: 10,
-            background: 'rgba(0,212,255,0.06)',
-            border: '1px solid rgba(0,212,255,0.2)',
-            borderRadius: 30, padding: '7px 18px',
-            fontSize: 11, color: '#00d4ff',
-            letterSpacing: 2, fontFamily: 'Oxanium, sans-serif',
-            fontWeight: 600, marginBottom: 24,
-          }}>
-            <span style={{
-              width: 7, height: 7, borderRadius: '50%',
-              background: '#00d4ff',
-              animation: 'pulse-glow 2s infinite',
-              display: 'inline-block',
-            }} />
-            AVAILABLE FOR OPPORTUNITIES
-          </div>
-        </motion.div>
-
-        {/* Name */}
-        <motion.h1
-          variants={itemVariants}
-          style={{
-            fontFamily: 'Oxanium, sans-serif',
-            fontSize: 'clamp(36px, 6vw, 68px)',
-            fontWeight: 800,
-            lineHeight: 1.05,
-            marginBottom: 18,
-            background: 'linear-gradient(135deg, #ffffff 0%, #00d4ff 50%, #7c3aed 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
-          }}
-        >
-          Jaya Sri Vardhan<br />Samgoju
-        </motion.h1>
-
-        {/* Typewriter */}
-        <motion.div
-          variants={itemVariants}
-          style={{
-            fontFamily: 'Oxanium, sans-serif',
-            fontSize: 'clamp(13px, 2vw, 18px)',
-            fontWeight: 500,
-            letterSpacing: 1.5,
-            marginBottom: 22,
-            color: '#94a3b8',
-          }}
-        >
-          <TypeWriter texts={[
-            'Machine Learning Enthusiast',
-            'Aspiring Data Scientist',
-            'AI Developer',
-            'Deep Learning Engineer',
-          ]} />
-        </motion.div>
-
-        {/* Description */}
         <motion.p
           variants={itemVariants}
           style={{
-            fontSize: 15,
-            color: '#94a3b8',
-            lineHeight: 1.9,
-            marginBottom: 40,
-            maxWidth: 580,
+            fontFamily: 'var(--font-mono)',
+            fontSize: '14px',
+            color: 'var(--accent)',
+            marginBottom: '16px',
+            letterSpacing: '2px',
           }}
         >
-          A passionate Computer Science engineering student specializing in Machine Learning,
-          Artificial Intelligence, and Natural Language Processing. Building intelligent systems
-          that solve real-world problems through data-driven approaches and deep learning.
+          HELLO, I'M
         </motion.p>
 
-        {/* Stats */}
-        <motion.div
+        <motion.h1 className="hero-name" variants={itemVariants}>
+          Jaya Sri Vardhan Samgoju
+        </motion.h1>
+
+        <motion.h2 className="hero-role" variants={itemVariants} style={{ color: 'var(--accent)' }}>
+          <TypeAnimation
+            sequence={[
+              'AI Engineer',
+              1500,
+              'Data Scientist',
+              1500,
+              'ML Engineer',
+              1500,
+              'Works on LLMs',
+              2000,
+            ]}
+            wrapper="span"
+            speed={50}
+            repeat={Infinity}
+          />
+        </motion.h2>
+
+        {/* Mobile Photo */}
+        <motion.div className="hero-photo-mobile" variants={itemVariants}>
+          <img
+            src="/assets/profile_photo.png"
+            alt="Portrait"
+          />
+        </motion.div>
+
+        <motion.p className="hero-bio" variants={itemVariants} style={{ color: '#c1c7d0' /* custom color instead of muted */ }}>
+          Fusing data with intelligence to build state-of-the-art AI solutions. 
+          Passionate about machine learning, deep neural networks, and translating complex 
+          algorithms into impactful real-world applications.
+        </motion.p>
+
+        <motion.div className="hero-socials" variants={itemVariants}>
+          <a
+            href="https://github.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hero-social-link"
+            aria-label="GitHub"
+          >
+            <GithubIcon />
+          </a>
+          <a
+            href="https://linkedin.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hero-social-link"
+            aria-label="LinkedIn"
+          >
+            <LinkedinIcon />
+          </a>
+          <a
+            href="https://twitter.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hero-social-link"
+            aria-label="Twitter"
+          >
+            <TwitterIcon />
+          </a>
+          <a
+            href="mailto:srivardhansamgoju@gmail.com"
+            className="hero-social-link"
+            aria-label="Email"
+          >
+            <MailIcon />
+          </a>
+        </motion.div>
+
+        <motion.button
+          className="hero-cta"
           variants={itemVariants}
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
-            gap: 14,
-            marginBottom: 40,
-          }}
+          onClick={onViewWork}
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.97 }}
         >
-          {stats.map(s => (
-            <motion.div
-              key={s.id}
-              whileHover={{ scale: 1.05, borderColor: '#00d4ff' }}
-              style={{
-                background: 'rgba(255,255,255,0.025)',
-                border: '1px solid #1e3a5f',
-                borderRadius: 12,
-                padding: '16px 12px',
-                textAlign: 'center',
-                transition: 'all 0.3s',
-                cursor: 'default',
-              }}
-            >
-              <div style={{
-                fontFamily: 'Oxanium, sans-serif',
-                fontSize: 26,
-                fontWeight: 800,
-                background: 'linear-gradient(135deg, #00d4ff, #7c3aed)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}>
-                <Counter target={s.target} decimals={s.decimals} suffix={s.suffix} started={started} />
-              </div>
-              <div style={{ fontSize: 10, color: '#4b6282', letterSpacing: 1, marginTop: 5, fontFamily: 'Oxanium, sans-serif' }}>
-                {s.label}
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
-
-        {/* CTAs */}
-        <motion.div variants={itemVariants} style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
-          <motion.a
-            href="#projects"
-            onClick={(e) => { e.preventDefault(); document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' }); }}
-            whileHover={{ scale: 1.04, boxShadow: '0 8px 30px rgba(0,212,255,0.35)' }}
-            whileTap={{ scale: 0.97 }}
-            style={{
-              display: 'inline-flex', alignItems: 'center', gap: 10,
-              background: 'linear-gradient(135deg, #00d4ff, #7c3aed)',
-              color: '#fff', border: 'none',
-              padding: '14px 32px', borderRadius: 8,
-              fontSize: 14, fontWeight: 700,
-              fontFamily: 'Oxanium, sans-serif',
-              cursor: 'pointer', letterSpacing: 0.5,
-              textDecoration: 'none',
-            }}
-          >
-            View My Work
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
-            </svg>
-          </motion.a>
-          <motion.a
-            href="#contact"
-            onClick={(e) => { e.preventDefault(); document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' }); }}
-            whileHover={{ borderColor: '#00d4ff', color: '#00d4ff', scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-            style={{
-              display: 'inline-flex', alignItems: 'center', gap: 10,
-              background: 'transparent', color: '#94a3b8',
-              border: '1px solid #1e3a5f',
-              padding: '14px 28px', borderRadius: 8,
-              fontSize: 14, fontFamily: 'Oxanium, sans-serif',
-              cursor: 'pointer', letterSpacing: 0.5,
-              textDecoration: 'none', transition: 'all 0.2s',
-            }}
-          >
-            Get In Touch
-          </motion.a>
-        </motion.div>
+          View My Work <ArrowRight size={16} />
+        </motion.button>
       </motion.div>
 
-      {/* Scroll indicator */}
-      <motion.div
-        animate={{ y: [0, 10, 0] }}
-        transition={{ duration: 2, repeat: Infinity }}
-        style={{
-          position: 'absolute', bottom: 32, left: '50%',
-          transform: 'translateX(-50%)', display: 'flex',
-          flexDirection: 'column', alignItems: 'center', gap: 6,
-          color: '#4b6282', fontSize: 11,
-          fontFamily: 'Oxanium, sans-serif', letterSpacing: 2,
-          zIndex: 1,
-        }}
-      >
-        <span>SCROLL</span>
-        <div style={{ width: 1, height: 40, background: 'linear-gradient(180deg, #4b6282, transparent)' }} />
-      </motion.div>
-
-      <style>{`
-        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
-        @keyframes pulse-glow {
-          0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(0,212,255,0.4)}
-          50%{opacity:0.7;box-shadow:0 0 0 10px transparent}
-        }
-        @media (max-width: 600px) {
-          [style*="repeat(4, 1fr)"] {
-            grid-template-columns: repeat(2, 1fr) !important;
-          }
-        }
-      `}</style>
+      {/* Right Side — Photo */}
+      <div className="hero-right">
+        <img
+          ref={photoRef}
+          src="/assets/profile_photo.png"
+          alt="Portrait"
+          className="hero-photo"
+          style={{ transition: 'transform 0.3s ease-out' }}
+        />
+        <div className="hero-photo-vignette" />
+      </div>
     </section>
   );
 };
