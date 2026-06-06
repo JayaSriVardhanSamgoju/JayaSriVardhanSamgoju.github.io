@@ -2246,13 +2246,19 @@ img {
 
   .cert-card-borderless {
     grid-template-columns: 1fr;
-    gap: 16px;
-    justify-items: center;
+    gap: 24px;
+  }
+
+  .cert-card-borderless .cert-image-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
   }
 
   .cert-card-borderless .cert-content {
     text-align: center;
     align-items: center;
+    width: 100%;
   }
 
   .cert-card-borderless .cert-issuer-badge {
