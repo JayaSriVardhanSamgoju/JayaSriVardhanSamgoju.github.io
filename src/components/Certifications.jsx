@@ -65,6 +65,15 @@ const CertCard = ({ cert, index, isMobile }) => {
     </div>
   );
 
+  if (isMobile) {
+    return (
+      <div className="cert-card-borderless">
+        {imageSection}
+        {contentSection}
+      </div>
+    );
+  }
+
   return (
     <motion.div
       className="cert-card-borderless"
@@ -73,13 +82,7 @@ const CertCard = ({ cert, index, isMobile }) => {
       whileInView="visible"
       viewport={{ once: true, amount: 0.15 }}
     >
-      {/* Mobile: image top → content below. Desktop: alternate image/content positions */}
-      {isMobile ? (
-        <>
-          {imageSection}
-          {contentSection}
-        </>
-      ) : isEven ? (
+      {isEven ? (
         <>
           {imageSection}
           {contentSection}

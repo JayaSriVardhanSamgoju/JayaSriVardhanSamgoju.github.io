@@ -105,13 +105,20 @@ function App() {
           }
         });
       },
-      { threshold: 0.3 }
+      { rootMargin: '-40% 0px -40% 0px' }
     );
 
     sectionIds.forEach((id) => {
       const el = document.getElementById(id);
       if (el) observer.observe(el);
     });
+
+    return () => observer.disconnect();
+  }, [phase]);
+
+  // Show hint when trying to scroll on the Hero section (mobile)
+  useEffect(() => {
+    if (phase !== 'HERO') return;
 
     let hintTimeout;
     const handleScroll = () => {
@@ -122,12 +129,11 @@ function App() {
       }
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('wheel', handleScroll, { passive: true });
     window.addEventListener('touchmove', handleScroll, { passive: true });
 
     return () => {
-      observer.disconnect();
-      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('wheel', handleScroll);
       window.removeEventListener('touchmove', handleScroll);
       if (hintTimeout) clearTimeout(hintTimeout);
     };
