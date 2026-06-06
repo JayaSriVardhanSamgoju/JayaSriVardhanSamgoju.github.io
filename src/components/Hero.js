@@ -1,7 +1,8 @@
-import React, { useRef, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
+import React, { useRef, useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowRight, Navigation } from 'lucide-react';
 import { TypeAnimation } from 'react-type-animation';
+import { personalInfo } from '../data/portfolioData';
 
 /* Inline social SVGs since lucide-react no longer ships brand icons */
 const GithubIcon = () => (
@@ -34,6 +35,7 @@ const MailIcon = () => (
 
 const Hero = ({ onViewWork }) => {
   const photoRef = useRef(null);
+  const [showNavHint, setShowNavHint] = useState(false);
 
   useEffect(() => {
     const handleMouseMove = (e) => {
@@ -45,6 +47,23 @@ const Hero = ({ onViewWork }) => {
 
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
+  // Show "scroll blocked" hint when user tries to scroll on hero
+  useEffect(() => {
+    let timeout;
+    const handleWheel = (e) => {
+      if (e.deltaY > 0) {
+        setShowNavHint(true);
+        clearTimeout(timeout);
+        timeout = setTimeout(() => setShowNavHint(false), 3000);
+      }
+    };
+    window.addEventListener('wheel', handleWheel, { passive: true });
+    return () => {
+      window.removeEventListener('wheel', handleWheel);
+      clearTimeout(timeout);
+    };
   }, []);
 
   const containerVariants = {
@@ -87,7 +106,7 @@ const Hero = ({ onViewWork }) => {
         </motion.p>
 
         <motion.h1 className="hero-name" variants={itemVariants}>
-          Jaya Sri Vardhan Samgoju
+          {personalInfo.name}
         </motion.h1>
 
         <motion.h2 className="hero-role" variants={itemVariants} style={{ color: 'var(--accent)' }}>
@@ -116,15 +135,13 @@ const Hero = ({ onViewWork }) => {
           />
         </motion.div>
 
-        <motion.p className="hero-bio" variants={itemVariants} style={{ color: '#c1c7d0' /* custom color instead of muted */ }}>
-          Fusing data with intelligence to build state-of-the-art AI solutions. 
-          Passionate about machine learning, deep neural networks, and translating complex 
-          algorithms into impactful real-world applications.
+        <motion.p className="hero-bio" variants={itemVariants} style={{ color: '#c1c7d0' }}>
+          {personalInfo.bio}
         </motion.p>
 
         <motion.div className="hero-socials" variants={itemVariants}>
           <a
-            href="https://github.com"
+            href={personalInfo.github}
             target="_blank"
             rel="noopener noreferrer"
             className="hero-social-link"
@@ -133,7 +150,7 @@ const Hero = ({ onViewWork }) => {
             <GithubIcon />
           </a>
           <a
-            href="https://linkedin.com"
+            href={personalInfo.linkedin}
             target="_blank"
             rel="noopener noreferrer"
             className="hero-social-link"
@@ -151,7 +168,7 @@ const Hero = ({ onViewWork }) => {
             <TwitterIcon />
           </a>
           <a
-            href="mailto:srivardhansamgoju@gmail.com"
+            href={`mailto:${personalInfo.email}`}
             className="hero-social-link"
             aria-label="Email"
           >
@@ -160,7 +177,7 @@ const Hero = ({ onViewWork }) => {
         </motion.div>
 
         <motion.button
-          className="hero-cta"
+          className="hero-cta hero-cta-compact"
           variants={itemVariants}
           onClick={onViewWork}
           whileHover={{ scale: 1.03 }}
@@ -181,6 +198,22 @@ const Hero = ({ onViewWork }) => {
         />
         <div className="hero-photo-vignette" />
       </div>
+
+      {/* "Use the navbar" scroll hint */}
+      <AnimatePresence>
+        {showNavHint && (
+          <motion.div
+            className="navbar-hint"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.4 }}
+          >
+            <Navigation size={16} />
+            <span>Use the navbar to navigate through sections</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 };

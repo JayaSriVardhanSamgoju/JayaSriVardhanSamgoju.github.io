@@ -1,9 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, Send, AlertCircle, CheckCircle2, Loader2, MessageSquareText } from 'lucide-react';
+import { Mail, Send, AlertCircle, CheckCircle2, Loader2, MessageSquareText, FileText } from 'lucide-react';
 import emailjs from '@emailjs/browser';
-import { Canvas } from '@react-three/fiber';
-import { Float, Stars, Sphere, MeshDistortMaterial } from '@react-three/drei';
+import { personalInfo } from '../data/portfolioData';
 
 /* Inline social SVGs */
 const GithubIcon = ({ size = 20 }) => (
@@ -79,8 +78,6 @@ const Contact = () => {
 
     setStatus('loading');
     try {
-      // NOTE: Make sure to create an EmailJS account and set these keys in your .env file
-      // REACT_APP_EMAILJS_SERVICE_ID, REACT_APP_EMAILJS_TEMPLATE_ID, REACT_APP_EMAILJS_PUBLIC_KEY
       const serviceId = process.env.REACT_APP_EMAILJS_SERVICE_ID || 'YOUR_SERVICE_ID';
       const templateId = process.env.REACT_APP_EMAILJS_TEMPLATE_ID || 'YOUR_TEMPLATE_ID';
       const publicKey = process.env.REACT_APP_EMAILJS_PUBLIC_KEY || 'YOUR_PUBLIC_KEY';
@@ -92,6 +89,7 @@ const Contact = () => {
           from_name: formData.name,
           to_name: 'Jaya Sri Vardhan Samgoju',
           from_email: formData.email,
+          to_email: personalInfo.email,
           message: formData.message,
           reply_to: formData.email,
         },
@@ -111,19 +109,6 @@ const Contact = () => {
 
   return (
     <section className="section-container" id="contact" style={{ position: 'relative' }}>
-      {/* Dynamic 3D Background */}
-      <div style={{ position: 'absolute', inset: 0, zIndex: 0, opacity: 0.3, pointerEvents: 'none' }}>
-        <Canvas>
-          <Stars radius={100} depth={50} count={1500} factor={4} saturation={0} fade speed={1.5} />
-          <ambientLight intensity={0.5} />
-          <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
-            <Sphere args={[1.5, 32, 32]} position={[-6, 0, -5]}>
-              <MeshDistortMaterial color="#111111" wireframe emissive="#64ffda" emissiveIntensity={0.15} distort={0.3} speed={2} />
-            </Sphere>
-          </Float>
-        </Canvas>
-      </div>
-
       <style>{`
         .floating-label-group {
           position: relative;
@@ -200,7 +185,7 @@ const Contact = () => {
         style={{ position: 'relative', zIndex: 1 }}
       >
         <motion.p className="section-label" variants={itemVariants}>
-          04 — Connect
+          05 — Connect
         </motion.p>
         <motion.h2 className="section-title" variants={itemVariants}>
           Get In Touch
@@ -214,16 +199,29 @@ const Contact = () => {
               Have feedback, ideas, or collaboration opportunities? Feel free to reach out — your suggestions help me grow. Whether it's a question about my ML pipelines or a discussion on system design, my inbox is always open!
             </p>
 
-            <div style={{ display: 'flex', gap: '16px', marginTop: '40px' }}>
-              <a href="mailto:srivardhansamgoju@gmail.com" className="social-icon-btn">
+            {/* Resume Button */}
+            <motion.a
+              href={personalInfo.resumePath}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="resume-btn"
+              whileHover={{ scale: 1.03, boxShadow: '0 0 30px var(--accent-dim)' }}
+              whileTap={{ scale: 0.97 }}
+            >
+              <FileText size={18} />
+              View My Resume
+            </motion.a>
+
+            <div style={{ display: 'flex', gap: '16px', marginTop: '24px' }}>
+              <a href={`mailto:${personalInfo.email}`} className="social-icon-btn">
                 <Mail size={22} />
                 <span className="social-tooltip">Email Me</span>
               </a>
-              <a href="https://github.com/" target="_blank" rel="noopener noreferrer" className="social-icon-btn">
+              <a href={personalInfo.github} target="_blank" rel="noopener noreferrer" className="social-icon-btn">
                 <GithubIcon size={22} />
                 <span className="social-tooltip">Visit GitHub</span>
               </a>
-              <a href="https://linkedin.com/" target="_blank" rel="noopener noreferrer" className="social-icon-btn">
+              <a href={personalInfo.linkedin} target="_blank" rel="noopener noreferrer" className="social-icon-btn">
                 <LinkedinIcon size={22} />
                 <span className="social-tooltip">Connect on LinkedIn</span>
               </a>
@@ -250,7 +248,7 @@ const Contact = () => {
                 <input
                   type="text"
                   name="name"
-                  id="name"
+                  id="contact-name"
                   className="contact-input"
                   placeholder=" "
                   value={formData.name}
@@ -259,14 +257,14 @@ const Contact = () => {
                   onBlur={() => setFocusedField(null)}
                   style={{ boxShadow: focusedField === 'name' ? '0 0 15px var(--accent-dim)' : 'none' }}
                 />
-                <label htmlFor="name" className="floating-label">Your Name</label>
+                <label htmlFor="contact-name" className="floating-label">Your Name</label>
               </div>
 
               <div className="floating-label-group">
                 <input
                   type="email"
                   name="email"
-                  id="email"
+                  id="contact-email"
                   className="contact-input"
                   placeholder=" "
                   value={formData.email}
@@ -275,13 +273,13 @@ const Contact = () => {
                   onBlur={() => setFocusedField(null)}
                   style={{ boxShadow: focusedField === 'email' ? '0 0 15px var(--accent-dim)' : 'none' }}
                 />
-                <label htmlFor="email" className="floating-label">Your Email</label>
+                <label htmlFor="contact-email" className="floating-label">Your Email</label>
               </div>
 
               <div className="floating-label-group" style={{ marginBottom: '8px' }}>
                 <textarea
                   name="message"
-                  id="message"
+                  id="contact-message"
                   className="contact-textarea"
                   placeholder=" "
                   value={formData.message}
@@ -290,7 +288,7 @@ const Contact = () => {
                   onBlur={() => setFocusedField(null)}
                   style={{ boxShadow: focusedField === 'message' ? '0 0 15px var(--accent-dim)' : 'none' }}
                 />
-                <label htmlFor="message" className="floating-label">Message / Suggestion</label>
+                <label htmlFor="contact-message" className="floating-label">Message / Suggestion</label>
               </div>
               
               <div style={{ textAlign: 'right', fontSize: '12px', color: 'var(--text-dim)', marginBottom: '24px', fontFamily: 'var(--font-mono)' }}>

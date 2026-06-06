@@ -1,7 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Stars, Sphere, MeshDistortMaterial } from '@react-three/drei';
+import { aboutContent } from '../data/portfolioData';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -20,7 +19,138 @@ const itemVariants = {
   },
 };
 
+/* Animated themed visual that replaces the 3D canvas */
+const ThemedVisual = () => {
+  const techWords = [
+    'Machine Learning', 'Deep Learning', 'NLP', 'Python',
+    'TensorFlow', 'FAISS', 'RAG', 'LLMs', 'CNNs', 'LSTMs',
+    'FastAPI', 'Kafka', 'MLflow', 'OpenCV', 'Transformers',
+    'Neural Networks', 'Data Science', 'System Design',
+  ];
+
+  return (
+    <div className="about-themed-visual" style={{ marginBottom: '40px' }}>
+      {/* Orbiting rings */}
+      <div className="about-orbit-container">
+        <div className="about-orbit about-orbit-1">
+          <div className="about-orbit-dot" />
+        </div>
+        <div className="about-orbit about-orbit-2">
+          <div className="about-orbit-dot" />
+        </div>
+        <div className="about-orbit about-orbit-3">
+          <div className="about-orbit-dot" />
+        </div>
+
+        {/* Center icon */}
+        <div className="about-center-icon">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1.5">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+      </div>
+
+      {/* Floating tech words */}
+      <div className="about-floating-words">
+        {techWords.map((word, i) => (
+          <motion.span
+            key={i}
+            className="about-float-word"
+            animate={{
+              y: [0, -8, 0],
+              opacity: [0.3, 0.8, 0.3],
+            }}
+            transition={{
+              duration: 3 + (i % 3),
+              repeat: Infinity,
+              delay: i * 0.3,
+              ease: 'easeInOut',
+            }}
+            style={{
+              animationDelay: `${i * 0.15}s`,
+            }}
+          >
+            {word}
+          </motion.span>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+/* macOS-style Code Window */
+const CodeSnippet = () => {
+  const codeString = `from langgraph.graph import StateGraph, END
+from langchain.agents import AgentExecutor
+from typing import TypedDict, Annotated
+
+class AgentState(TypedDict):
+    messages: Annotated[list, add_messages]
+    context: str
+
+def retrieve_docs(state: AgentState):
+    """Hybrid search via FAISS + BM25"""
+    return {"context": vector_db.similarity_search(state.messages[-1])}
+
+def llm_synthesize(state: AgentState):
+    """Generate response with Claude 3 / Gemini"""
+    response = llm.invoke([SystemMessage(content=sys_prompt)] + state.messages)
+    return {"messages": [response]}
+
+# Build Multi-Agent RAG Pipeline
+workflow = StateGraph(AgentState)
+workflow.add_node("retrieve", retrieve_docs)
+workflow.add_node("synthesize", llm_synthesize)
+workflow.add_edge("retrieve", "synthesize")
+workflow.set_entry_point("retrieve")
+
+app = workflow.compile()
+print("🚀 Agentic RAG System Online")`;
+
+  return (
+    <div className="about-code-window">
+      <div className="code-window-header">
+        <div className="mac-buttons">
+          <span className="mac-btn close"></span>
+          <span className="mac-btn minimize"></span>
+          <span className="mac-btn maximize"></span>
+        </div>
+        <div className="code-window-title">agentic_rag.py</div>
+      </div>
+      <div className="code-window-body">
+        <pre>
+          <code>
+            {codeString.split('\n').map((line, i) => {
+              // Basic syntax highlighting simulation
+              let className = "code-line";
+              if (line.startsWith('from') || line.startsWith('import') || line.includes('def ') || line.includes('class ')) className += " keyword";
+              if (line.includes('"""') || line.includes('# ')) className += " comment";
+              if (line.includes('"')) className += " string";
+              
+              return (
+                <div key={i} className={className}>
+                  <span className="line-number">{i + 1}</span>
+                  {line}
+                </div>
+              );
+            })}
+          </code>
+        </pre>
+      </div>
+    </div>
+  );
+};
+
 const About = ({ onNavigate }) => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth <= 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+
   return (
     <section className="section-container" id="about">
       <motion.div
@@ -33,114 +163,102 @@ const About = ({ onNavigate }) => {
           01 — About Me
         </motion.p>
         <motion.h2 className="section-title" variants={itemVariants}>
-          Architecting Intelligence
+          {aboutContent.heading}
         </motion.h2>
 
-        <div className="about-content">
-          <motion.div className="about-text" variants={itemVariants}>
-            {/* Professional Introduction */}
-            <div style={{ marginBottom: '32px' }}>
-              <p>
-                I am a <strong>Machine Learning Engineer</strong> and an aspiring Data Scientist, specializing in designing scalable AI systems and deploying production-ready models. My work bridges the gap between theoretical machine learning and real-world engineering solutions.
-              </p>
-              <p style={{ marginTop: '12px' }}>
-                Holding a B.Tech in Computer Science Engineering (CGPA: 9.1), I have built a strong foundation in complex algorithms, advanced mathematics, and modern system architectures.
-              </p>
-            </div>
+        {isMobile ? (
+          /* ===== MOBILE ORDER: Animation → About Text → Code ===== */
+          <div className="about-content about-content-mobile">
+            {/* 1. Animation first */}
+            <motion.div 
+              className="about-visual-wrapper" 
+              variants={itemVariants}
+            >
+              <ThemedVisual />
+            </motion.div>
 
-            {/* Technical Expertise */}
-            <div style={{ marginBottom: '32px' }}>
-              <h3 style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-heading)', fontSize: '18px', marginBottom: '12px' }}>
-                Technical Expertise
-              </h3>
-              <p>
-                My core expertise lies in developing and optimizing <strong style={{ color: 'var(--accent)' }}>Machine Learning pipelines</strong>, designing <strong style={{ color: 'var(--accent)' }}>Deep Learning architectures</strong> (CNNs, RNNs, LSTMs), and building intelligent <strong style={{ color: 'var(--accent)' }}>NLP & LLM-based systems</strong>. I am highly proficient in <strong style={{ color: 'var(--accent)' }}>Vector Search (FAISS)</strong> and Retrieval-Augmented Generation (RAG) systems.
-              </p>
-            </div>
+            {/* 2. About text */}
+            <motion.div className="about-text" variants={itemVariants}>
+              {aboutContent.paragraphs.map((para, index) => (
+                <p key={index}>{para}</p>
+              ))}
+              <div style={{ display: 'flex', gap: '16px', marginTop: '24px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                <motion.button 
+                  onClick={() => onNavigate('projects')} 
+                  className="hero-cta" 
+                  style={{ padding: '12px 24px', fontSize: '13px', border: '1px solid var(--accent)', cursor: 'pointer', background: 'transparent' }}
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                >
+                  View Projects
+                </motion.button>
+                <a 
+                  href="/resume.pdf" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="hero-cta" 
+                  style={{ padding: '12px 24px', fontSize: '13px', background: 'var(--accent-dim)' }}
+                >
+                  Download Resume
+                </a>
+              </div>
+            </motion.div>
 
-            {/* Engineering Mindset */}
-            <div style={{ marginBottom: '32px' }}>
-              <h3 style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-heading)', fontSize: '18px', marginBottom: '12px' }}>
-                Engineering Mindset
-              </h3>
-              <p>
-                I approach AI from a production-first mindset. It's not just about training a highly accurate model in a notebook; it's about building scalable, resilient systems with an emphasis on <strong>real-time pipelines, monitoring, and drift detection</strong>. Performance and reliability are paramount.
-              </p>
-            </div>
+            {/* 3. Code window last */}
+            <motion.div 
+              className="code-visual-wrapper" 
+              style={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: '20px' }}
+              variants={itemVariants}
+            >
+              <CodeSnippet />
+            </motion.div>
+          </div>
+        ) : (
+          /* ===== DESKTOP: Original two-column layout ===== */
+          <div className="about-content">
+            <motion.div className="about-text" variants={itemVariants}>
+              {aboutContent.paragraphs.map((para, index) => (
+                <p key={index}>{para}</p>
+              ))}
+              <div style={{ display: 'flex', gap: '16px', marginTop: '24px', flexWrap: 'wrap' }}>
+                <motion.button 
+                  onClick={() => onNavigate('projects')} 
+                  className="hero-cta" 
+                  style={{ padding: '12px 24px', fontSize: '13px', border: '1px solid var(--accent)', cursor: 'pointer', background: 'transparent' }}
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                >
+                  View Projects
+                </motion.button>
+                <a 
+                  href="/resume.pdf" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="hero-cta" 
+                  style={{ padding: '12px 24px', fontSize: '13px', background: 'var(--accent-dim)' }}
+                >
+                  Download Resume
+                </a>
+              </div>
+            </motion.div>
 
-            {/* Key Work Highlights */}
-            <div style={{ marginBottom: '32px' }}>
-              <h3 style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-heading)', fontSize: '18px', marginBottom: '12px' }}>
-                Key Highlights
-              </h3>
-              <ul style={{ listStyleType: 'square', paddingLeft: '20px', color: 'var(--text-muted)', fontSize: '16px', lineHeight: '1.8' }}>
-                <li>Engineered a <strong>Real-Time Industrial Equipment Failure Detection System</strong> using robust sensor data streaming.</li>
-                <li>Developed <strong>VisionMatch</strong>, a high-performance image similarity and retrieval system.</li>
-              </ul>
-            </div>
-
-            {/* Career Vision & Philosophy */}
-            <div style={{ marginBottom: '32px' }}>
-              <h3 style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-heading)', fontSize: '18px', marginBottom: '12px' }}>
-                Vision & Philosophy
-              </h3>
-              <p>
-                In the short term, I am focused on mastering advanced LLM architectures and distributed ML systems. Long term, I aim to be a top-tier AI Engineer building large-scale, impactful intelligence systems. I believe in continuous learning, building tangible solutions, and relentlessly pushing the boundaries of AI capabilities.
-              </p>
-            </div>
-
-            <div style={{ display: 'flex', gap: '16px', marginTop: '24px' }}>
-              <motion.button 
-                onClick={() => onNavigate('projects')} 
-                className="hero-cta" 
-                style={{ padding: '12px 24px', fontSize: '13px', border: 'none', cursor: 'pointer' }}
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
+            <div style={{ display: 'flex', flexDirection: 'column', width: '100%', alignItems: 'center' }}>
+              <motion.div 
+                className="about-visual-wrapper" 
+                variants={itemVariants}
               >
-                View Projects
-              </motion.button>
-              <a href="/resume.pdf" target="_blank" rel="noopener noreferrer" className="hero-cta" style={{ padding: '12px 24px', fontSize: '13px', background: 'var(--accent-dim)' }}>Download Resume</a>
+                <ThemedVisual />
+              </motion.div>
+              <motion.div 
+                className="code-visual-wrapper" 
+                style={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: '20px' }}
+                variants={itemVariants}
+              >
+                <CodeSnippet />
+              </motion.div>
             </div>
-          </motion.div>
-
-          {/* 3D Visual Layout */}
-          <motion.div 
-            className="about-visual" 
-            variants={itemVariants}
-            style={{ 
-              height: '100%', 
-              minHeight: '500px', 
-              position: 'relative',
-              borderRadius: '16px',
-              overflow: 'hidden',
-              border: '1px solid var(--border-accent)',
-              background: 'radial-gradient(circle at center, var(--accent-dim) 0%, transparent 70%)'
-            }}
-          >
-            <Canvas camera={{ position: [0, 0, 4] }}>
-              <ambientLight intensity={0.5} />
-              <pointLight position={[10, 10, 10]} intensity={1.5} color="white" />
-              <directionalLight position={[-5, 5, -5]} intensity={0.8} color="#64ffda" />
-              <Stars radius={100} depth={50} count={3000} factor={4} saturation={0} fade speed={2} />
-              
-              {/* Neural Node representation */}
-              <Sphere args={[1.2, 64, 64]}>
-                <MeshDistortMaterial
-                  color="#111111"
-                  attach="material"
-                  distort={0.4}
-                  speed={2}
-                  roughness={0.2}
-                  metalness={0.8}
-                  emissive="#64ffda"
-                  emissiveIntensity={0.2}
-                  wireframe
-                />
-              </Sphere>
-              <OrbitControls autoRotate autoRotateSpeed={1.5} enableZoom={false} />
-            </Canvas>
-          </motion.div>
-        </div>
+          </div>
+        )}
       </motion.div>
     </section>
   );

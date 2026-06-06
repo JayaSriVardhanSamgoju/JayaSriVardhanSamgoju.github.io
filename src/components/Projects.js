@@ -1,102 +1,134 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import VanillaTilt from 'vanilla-tilt';
+import { ExternalLink } from 'lucide-react';
+import { projectsData } from '../data/portfolioData';
 
-const projectsData = [
-  {
-    num: '01',
-    name: 'Project Alpha',
-    desc: 'A full-stack web application built with React and Node.js, featuring real-time data synchronization and an intuitive dashboard interface.',
-    tags: ['React', 'Node.js', 'MongoDB', 'Socket.io'],
-  },
-  {
-    num: '02',
-    name: 'Project Beta',
-    desc: 'An AI-powered analytics platform that processes large datasets and presents insights through interactive visualizations.',
-    tags: ['Python', 'TensorFlow', 'D3.js', 'FastAPI'],
-  },
-  {
-    num: '03',
-    name: 'Project Gamma',
-    desc: 'A mobile-first e-commerce experience with a headless CMS backend and optimized checkout flow.',
-    tags: ['Next.js', 'Stripe', 'Sanity', 'Tailwind'],
-  },
-  {
-    num: '04',
-    name: 'Project Delta',
-    desc: 'A collaborative design tool that enables teams to prototype and share ideas in real-time.',
-    tags: ['React', 'WebRTC', 'Canvas API', 'Firebase'],
-  },
-];
+const GithubIcon = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/>
+    <path d="M9 18c-4.51 2-5-2-7-2"/>
+  </svg>
+);
 
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: { staggerChildren: 0.12, delayChildren: 0.2 },
+    transition: { staggerChildren: 0.2, delayChildren: 0.1 },
   },
 };
 
-const cardVariants = {
-  hidden: { opacity: 0, y: 40 },
+/* Slide from left for image side on even, content on odd */
+const slideLeft = {
+  hidden: { opacity: 0, x: -60 },
   visible: {
-    opacity: 1,
-    y: 0,
+    opacity: 1, x: 0,
+    transition: { duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] },
+  },
+};
+
+const slideRight = {
+  hidden: { opacity: 0, x: 60 },
+  visible: {
+    opacity: 1, x: 0,
+    transition: { duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] },
+  },
+};
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 30 },
+  visible: {
+    opacity: 1, y: 0,
     transition: { duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] },
   },
 };
 
-const ProjectCard = ({ project }) => {
-  const cardRef = useRef(null);
+const ProjectRow = ({ project, index, isMobile }) => {
+  const isEven = index % 2 === 0;
 
-  useEffect(() => {
-    if (cardRef.current) {
-      VanillaTilt.init(cardRef.current, {
-        max: 8,
-        speed: 400,
-        glare: true,
-        'max-glare': 0.1,
-        scale: 1.02,
-      });
-    }
+  const imageVariant = isMobile ? fadeUp : (isEven ? slideLeft : slideRight);
+  const contentVariant = isMobile ? fadeUp : (isEven ? slideRight : slideLeft);
 
-    return () => {
-      if (cardRef.current && cardRef.current.vanillaTilt) {
-        cardRef.current.vanillaTilt.destroy();
-      }
-    };
-  }, []);
+  const imageBlock = (
+    <motion.div
+      className="proj-row-image-wrap"
+      variants={imageVariant}
+    >
+      <img
+        src={project.image}
+        alt={`${project.shortName} preview`}
+        className="proj-row-image"
+        loading="lazy"
+      />
+      <div className="proj-row-image-overlay" />
+    </motion.div>
+  );
 
-  const handleMouseMove = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    e.currentTarget.style.setProperty('--mouse-x', x + 'px');
-    e.currentTarget.style.setProperty('--mouse-y', y + 'px');
-  };
+  const contentBlock = (
+    <motion.div className="proj-row-content" variants={contentVariant}>
+      <div className="project-number">{project.num}</div>
+      <h3 className="project-name">{project.name}</h3>
+      <p className="project-desc">{project.description}</p>
+
+      <div className="project-tags">
+        {project.tags.map((tag, i) => (
+          <span className="project-tag" key={i}>{tag}</span>
+        ))}
+      </div>
+
+      <a
+        href={project.github}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="project-github-btn"
+      >
+        <GithubIcon size={16} />
+        View Source
+        <ExternalLink size={14} />
+      </a>
+    </motion.div>
+  );
 
   return (
     <motion.div
-      className="project-card"
-      ref={cardRef}
-      variants={cardVariants}
-      onMouseMove={handleMouseMove}
+      className={`proj-row ${isEven ? 'proj-row--even' : 'proj-row--odd'}`}
+      variants={fadeUp}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.15 }}
     >
-      <div className="project-number">{project.num}</div>
-      <h3 className="project-name">{project.name}</h3>
-      <p className="project-desc">{project.desc}</p>
-      <div className="project-tags">
-        {project.tags.map((tag, i) => (
-          <span className="project-tag" key={i}>
-            {tag}
-          </span>
-        ))}
-      </div>
+      {isMobile ? (
+        /* Mobile: always image top, content below */
+        <>
+          {imageBlock}
+          {contentBlock}
+        </>
+      ) : isEven ? (
+        /* Even: image LEFT, content RIGHT */
+        <>
+          {imageBlock}
+          {contentBlock}
+        </>
+      ) : (
+        /* Odd: content LEFT, image RIGHT */
+        <>
+          {contentBlock}
+          {imageBlock}
+        </>
+      )}
     </motion.div>
   );
 };
 
 const Projects = () => {
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+
   return (
     <section className="section-container" id="projects">
       <motion.div
@@ -105,16 +137,21 @@ const Projects = () => {
         whileInView="visible"
         viewport={{ once: true, amount: 0.1 }}
       >
-        <motion.p className="section-label" variants={cardVariants}>
+        <motion.p className="section-label" variants={fadeUp}>
           02 — Projects
         </motion.p>
-        <motion.h2 className="section-title" variants={cardVariants}>
+        <motion.h2 className="section-title" variants={fadeUp}>
           Selected Work
         </motion.h2>
 
-        <div className="projects-grid">
+        <div className="proj-stack">
           {projectsData.map((project, i) => (
-            <ProjectCard key={i} project={project} />
+            <ProjectRow
+              key={project.id || i}
+              project={project}
+              index={i}
+              isMobile={isMobile}
+            />
           ))}
         </div>
       </motion.div>

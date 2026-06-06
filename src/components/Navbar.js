@@ -1,29 +1,30 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Home, User, Briefcase, Code2, Mail } from 'lucide-react';
+import { Home, User, Briefcase, Code2, Award, Mail } from 'lucide-react';
 
 const navItems = [
   { id: 'home', icon: Home, label: 'Home' },
   { id: 'about', icon: User, label: 'About' },
   { id: 'projects', icon: Briefcase, label: 'Projects' },
   { id: 'skills', icon: Code2, label: 'Skills' },
+  { id: 'certifications', icon: Award, label: 'Certifications' },
   { id: 'contact', icon: Mail, label: 'Contact' },
 ];
 
-const Navbar = ({ visible, position, activeSection, onNavigate }) => {
+const Navbar = ({ visible, position, activeSection, onNavigate, isHero }) => {
   if (!visible) return null;
 
   // position: 'center' or 'left'
   const positionStyles =
     position === 'center'
       ? {
-          top: '40%',     /* Adjusted slightly up */
+          top: '30%',
           left: '50%',
           x: '-50%',
           y: '-50%',
         }
       : {
-          top: '40%',     /* Adjusted slightly up */
+          top: '30%',
           left: '24px',
           x: '0%',
           y: '-50%',
@@ -32,7 +33,7 @@ const Navbar = ({ visible, position, activeSection, onNavigate }) => {
   return (
     <AnimatePresence>
       <motion.nav
-        className="vertical-navbar"
+        className={`vertical-navbar ${isHero ? 'navbar-hero-highlight' : ''}`}
         layout
         initial={{ opacity: 0, y: 20, ...positionStyles }}
         animate={{
