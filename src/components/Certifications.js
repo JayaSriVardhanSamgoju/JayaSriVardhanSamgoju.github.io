@@ -113,10 +113,10 @@ const Certifications = () => {
         viewport={{ once: true, amount: 0.1 }}
       >
         <motion.p className="section-label" variants={itemVariants}>
-          04 — Certifications
+          04 — Credentials
         </motion.p>
         <motion.h2 className="section-title" variants={itemVariants}>
-          Professional Certifications
+          Industry Certifications
         </motion.h2>
 
         <div className="certifications-stack">

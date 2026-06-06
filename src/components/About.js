@@ -160,7 +160,7 @@ const About = ({ onNavigate }) => {
         viewport={{ once: true, amount: 0.2 }}
       >
         <motion.p className="section-label" variants={itemVariants}>
-          01 — About Me
+          01 — Professional Overview
         </motion.p>
         <motion.h2 className="section-title" variants={itemVariants}>
           {aboutContent.heading}

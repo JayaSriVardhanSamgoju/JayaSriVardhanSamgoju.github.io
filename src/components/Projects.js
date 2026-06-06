@@ -138,10 +138,10 @@ const Projects = () => {
         viewport={{ once: true, amount: 0.1 }}
       >
         <motion.p className="section-label" variants={fadeUp}>
-          02 — Projects
+          02 — AI & ML Portfolio
         </motion.p>
         <motion.h2 className="section-title" variants={fadeUp}>
-          Selected Work
+          Featured Projects
         </motion.h2>
 
         <div className="proj-stack">

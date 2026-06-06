@@ -722,8 +722,8 @@ const SkillsSection = () => {
 
   return (
     <section className="section-container" style={{ paddingLeft: isMobile ? '24px' : undefined }}>
-      <p className="section-label">03 — Skills</p>
-      <h2 className="section-title">Skills &amp; Capabilities</h2>
+      <p className="section-label">03 — Technical Skills</p>
+      <h2 className="section-title">Technical Expertise</h2>
 
       <div className={`skw-wrapper ${isMobile ? 'skw-wrapper--mobile' : ''}`}>
         {/* LEFT COLUMN */}

@@ -185,10 +185,10 @@ const Contact = () => {
         style={{ position: 'relative', zIndex: 1 }}
       >
         <motion.p className="section-label" variants={itemVariants}>
-          05 — Connect
+          05 — Collaboration
         </motion.p>
         <motion.h2 className="section-title" variants={itemVariants}>
-          Get In Touch
+          Initiate Connect
         </motion.h2>
 
         <div className="contact-layout">
