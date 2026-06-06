@@ -113,7 +113,24 @@ function App() {
       if (el) observer.observe(el);
     });
 
-    return () => observer.disconnect();
+    let hintTimeout;
+    const handleScroll = () => {
+      if (window.innerWidth <= 768) {
+        setShowHint(true);
+        if (hintTimeout) clearTimeout(hintTimeout);
+        hintTimeout = setTimeout(() => setShowHint(false), 2500);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('touchmove', handleScroll, { passive: true });
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('touchmove', handleScroll);
+      if (hintTimeout) clearTimeout(hintTimeout);
+    };
   }, [phase]);
 
   return (

@@ -109,6 +109,7 @@ img {
 
 .preloader-text {
   font-family: var(--font-heading);
+  text-align: center;
   font-size: clamp(24px, 4vw, 48px);
   font-weight: 300;
   letter-spacing: 6px;
@@ -2246,6 +2247,7 @@ img {
   .cert-card-borderless {
     grid-template-columns: 1fr;
     gap: 16px;
+    justify-items: center;
   }
 
   .cert-card-borderless .cert-content {
