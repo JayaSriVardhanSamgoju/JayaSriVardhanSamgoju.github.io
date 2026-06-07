@@ -8,6 +8,7 @@ import Hero from './components/Hero';
 import Navbar from './components/Navbar';
 import About from './components/About';
 import Projects from './components/Projects';
+import Education from './components/Education';
 import SkillsSection from './components/SkillsSection';
 import Certifications from './components/Certifications';
 import Contact from './components/Contact';
@@ -96,7 +97,7 @@ function App() {
   useEffect(() => {
     if (phase !== 'SCROLLABLE') return;
 
-    const sectionIds = ['about', 'projects', 'skills', 'certifications', 'contact'];
+    const sectionIds = ['about', 'projects', 'education', 'skills', 'certifications', 'contact'];
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -165,6 +166,7 @@ function App() {
           >
             <About onNavigate={handleNavigate} />
             <Projects />
+            <Education />
             <div id="skills">
               <SkillsSection />
             </div>
