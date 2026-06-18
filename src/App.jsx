@@ -187,7 +187,9 @@ function App() {
       />
 
       {/* Chatbot — always visible after preloader */}
-      {(phase === 'HERO' || phase === 'SCROLLABLE') && <Chatbot />}
+      {(phase === 'HERO' || phase === 'SCROLLABLE') && (
+        <Chatbot onNavigate={handleNavigate} phase={phase} />
+      )}
 
       {/* Navbar hint — auto-dismisses after 3s */}
       <AnimatePresence>
