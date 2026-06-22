@@ -50,8 +50,22 @@ export const projectsData = [
     github: 'https://github.com/JayaSriVardhanSamgoju/Agentic-Document-Intelligence-Engine',
   },
   {
-    id: 'industrial',
+    id: 'cloudpulse',
     num: '02',
+    name: 'CloudPulse AI — Predictive Infrastructure Autoscale & FinOps Engine',
+    shortName: 'CloudPulse AI',
+    image: '/assets/projects/cloudpulse.png',
+    description:
+      'An enterprise-grade predictive capacity forecasting and FinOps platform designed to forecast cloud resource demands (CPU utilization, request rates, response latencies) up to 1 hour in advance. Powered by an XGBoost forecasting engine, the platform enables proactive infrastructure auto-scaling—mitigating the 2–7 minute cold-start boot delay of traditional reactive thresholds. Prevents performance degradation, ensures flat response latency, and reduces idle infrastructure spend by 20% to 45%.',
+    tags: [
+      'XGBoost', 'Python', 'Time-Series Forecasting', 'FastAPI',
+      'React', 'Docker', 'MLOps', 'FinOps',
+    ],
+    github: 'https://github.com/JayaSriVardhanSamgoju/Cloud_FinOPs_Engine',
+  },
+  {
+    id: 'industrial',
+    num: '03',
     name: 'Real-Time Industrial Equipment Failure Detection',
     shortName: 'Industrial Failure Detection',
     image: '/assets/projects/Real time intelligence.png',
@@ -65,7 +79,7 @@ export const projectsData = [
   },
   {
     id: 'visionixai',
-    num: '03',
+    num: '04',
     name: 'VisionixAI — Zone-Based Computer Vision Automation',
     shortName: 'VisionixAI',
     image: '/assets/projects/Visionix.png',
@@ -249,8 +263,12 @@ export const chatbotKnowledge = {
       response: `Key skills include LLM Engineering (OpenAI, Anthropic, Gemini, QLoRA, PEFT, Quantization, llama.cpp, Transformers, HuggingFace), Backend & Infra (FastAPI, PostgreSQL, Docker, AWS, Vercel, DVC), Agentic AI (LangGraph, LangChain, CrewAI, Multi-Agent Systems, Agentic RAG, Tool-Calling), and AI Systems (RAG Pipelines, Vector DBs, ChromaDB, PyTorch, TensorFlow, MLflow, scikit-learn, Computer Vision).`,
     },
     projects: {
-      keywords: ['projects', 'work', 'built', 'developed', 'created', 'portfolio', 'synoptiq', 'industrial', 'failure detection', 'visionix'],
-      response: `He has built three major projects: 1) SynoptiQ — An enterprise-grade Agentic RAG system with multi-agent orchestration (LangGraph), hybrid retrieval (FAISS + BM25), guardrails, JWT auth, and a Next.js 14 frontend. 2) Real-Time Industrial Equipment Failure Detection — A streaming ML pipeline using Apache Kafka, Isolation Forest, adaptive thresholds, MLflow tracking, EvidentlyAI drift detection, and a Streamlit dashboard. 3) VisionixAI — A computer vision platform for zone-based presence detection and automated responses using OpenCV and MediaPipe.`,
+      keywords: ['projects', 'work', 'built', 'developed', 'created', 'portfolio', 'synoptiq', 'industrial', 'failure detection', 'visionix', 'cloudpulse', 'finops', 'resource demand', 'forecasting'],
+      response: `He has built four major projects: 1) SynoptiQ — An enterprise-grade Agentic RAG system with multi-agent orchestration (LangGraph), hybrid retrieval (FAISS + BM25), guardrails, JWT auth, and a Next.js 14 frontend. 2) Real-Time Industrial Equipment Failure Detection — A streaming ML pipeline using Apache Kafka, Isolation Forest, adaptive thresholds, MLflow tracking, EvidentlyAI drift detection, and a Streamlit dashboard. 3) VisionixAI — A computer vision platform for zone-based presence detection and automated responses using OpenCV and MediaPipe. 4) CloudPulse AI — A predictive machine learning and FinOps platform designed to forecast cloud resource demands and enable proactive auto-scaling using an XGBoost engine.`,
+    },
+    cloudpulse: {
+      keywords: ['cloudpulse', 'finops', 'forecasting', 'resource demand', 'autoscale', 'scaling', 'xgboost'],
+      response: `CloudPulse AI is an enterprise-grade predictive machine learning and FinOps platform that forecasts cloud infrastructure resource demands (CPU, request rates, latency) up to 1 hour in advance. Instead of reactive thresholds that scale late, CloudPulse uses XGBoost forecasts to proactively provision resources before stress peaks, saving 20% to 45% in idle infrastructure costs while maintaining stable latencies.`,
     },
     visionixai: {
       keywords: ['visionix', 'vision', 'computer vision', 'zone', 'presence', 'detection', 'mediapipe', 'opencv'],
@@ -277,7 +295,7 @@ export const chatbotKnowledge = {
       response: `Short term: Master advanced ML/DL architectures (Transformers, GANs) and MLOps. Mid term: Build scalable AI systems, advanced NLP apps, and contribute to open source. Long term: Become a professional Data Scientist building impactful AI-driven solutions at a global scale.`,
     },
   },
-  fallback: 'I can answer questions about Jaya Sri Vardhan\'s education, skills, projects (SynoptiQ, Industrial Failure Detection), certifications, goals, and contact info. Could you rephrase your question?',
+  fallback: 'I can answer questions about Jaya Sri Vardhan\'s education, skills, projects (SynoptiQ, CloudPulse AI, Industrial Failure Detection), certifications, goals, and contact info. Could you rephrase your question?',
   // Placeholder for future document content
   customDocument: null,
 };

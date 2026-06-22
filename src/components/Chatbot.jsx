@@ -91,7 +91,7 @@ function parseNavCommand(text) {
 /* ═══════════════════════════════════════════
    TOPIC DETECTION (for robot emotions)
    ═══════════════════════════════════════════ */
-const EXCITED_KEYWORDS = ['project', 'synoptiq', 'visionix', 'industrial', 'built', 'achievement', 'skill', 'best', 'impressive', 'amazing'];
+const EXCITED_KEYWORDS = ['project', 'synoptiq', 'visionix', 'industrial', 'cloudpulse', 'built', 'achievement', 'skill', 'best', 'impressive', 'amazing'];
 const CONFUSED_KEYWORDS = ["don't have", "not sure", "outside", "can't answer", "hmm"];
 
 function detectMood(text) {
